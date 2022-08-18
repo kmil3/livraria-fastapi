@@ -11,11 +11,21 @@ router = APIRouter(
 )
 
 @router.get('/', response_model=List[schemas.LivroShow])
-def list_all(search : Optional[str] = "", db: SessionLocal = Depends(get_db)):
+def list_all(search : Optional[str] = "", categoria: Optional[int] = 0, editora: Optional[int] = 0, maxpreco: Optional[float] = 0, db: SessionLocal = Depends(get_db)):
+    livros = db.query(models.Livro).all()
+    
     if search != "":
         livros = db.query(models.Livro).filter(models.Livro.titulo.contains(search)).all()
-    else:
-        livros = db.query(models.Livro).all()
+    
+    if categoria != 0:
+        livros = db.query(models.Livro).filter(models.Livro.categoria_id == categoria).all()
+    
+    if editora != 0:
+        livros = db.query(models.Livro).filter(models.Livro.editora_id == editora).all()
+    
+    if maxpreco != 0:
+        livros = db.query(models.Livro).filter(models.Livro.preco <= maxpreco).all()
+    
     return livros
 
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.LivroShow)

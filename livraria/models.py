@@ -26,7 +26,8 @@ class Leitor(Base):
     id = Column(Integer, primary_key = True, index = True)
     nome = Column(String)
     favoritos = relationship('Livro', secondary='livros_leitores')
-    livros_leitores = Table(
+
+livros_leitores = Table(
     'livros_leitores', Base.metadata,
     Column('livro_id', ForeignKey('livros.id'), primary_key=True),
     Column('leitor_id', ForeignKey('leitor.id'), primary_key=True)
@@ -47,7 +48,8 @@ class Livro(Base):
     categoria = relationship("Categoria")
 
     autores = relationship('Autor', secondary='livros_autores')
-    livros_autores = Table(
+
+livros_autores = Table(
     'livros_autores', Base.metadata,
     Column('livro_id', ForeignKey('livros.id'), primary_key=True),
     Column('autor_id', ForeignKey('autores.id'), primary_key=True)

@@ -47,26 +47,30 @@ def destroy(id: int, db: SessionLocal = Depends(get_db)):
     query = db.query(models.Leitor).filter(models.Leitor.id == id)
     if not query.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'leitor with id equals to {id} was not found')
+    
+    query.first().favoritos = []
+    
     query.delete(synchronize_session=False)
+
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.put('/{id}', status_code=status.HTTP_202_ACCEPTED, response_model=schemas.LeitorShow)
 def update(id: int, request: schemas.Leitor, db: SessionLocal = Depends(get_db)):
     query = db.query(models.Leitor).filter(models.Leitor.id == id)
-    query.update( request.dict(), synchronize_session=False )
+    
     query.update( {
         'nome' : request.nome
     }, synchronize_session=False )
     
     leitor = query.first()
-    leitor.livros = []
+    leitor.favoritos = []
 
-    for livro_id in request.livros:
+    for livro_id in request.favoritos:
         livro = db.query(models.Livro).filter(models.Livro.id == livro_id).first()
         if not livro:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'leitor with id equals to {livro_id} was not found')
-        leitor.livros.append(livro)
+        leitor.favoritos.append(livro)
 
     db.commit()
     return query.first()
